@@ -34,3 +34,9 @@ courtesy of Ms paint
 - HTML/CSS - Canvas
 - Javascript
 - anything else that may be helpful?
+
+## Potential Roadblocks
+
+- getting multiple enemies to spawn
+- getting them to move towards the player
+- setting up proper hitboxes for enemies, bullets, and the player character
