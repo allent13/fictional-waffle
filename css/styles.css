@@ -1,0 +1,44 @@
+body {
+    background-color: tomato;
+}
+
+#container {
+    background-color: aliceblue;
+    border: 3px solid black;
+    border-radius: 13px;
+    display: grid;
+    gap: 1em;
+    grid-template-rows: 1fr 2fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-areas:    "top-left top-left top-right"
+                            "game game game"
+                            "bottom-left bottom-right bottom-right";
+}
+
+#top-left, #top-right, #bottom-left, #bottom-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: blueviolet;
+}
+
+#top-left {
+    grid-area: top-left;
+}
+
+#top-right {
+    grid-area: top-right;
+}
+
+main {
+    grid-area: game;
+    background-color: rebeccapurple;
+}
+
+#bottom-left {
+    grid-area: bottom-left;
+}
+
+#bottom-right {
+    grid-area: bottom-right;
+}
