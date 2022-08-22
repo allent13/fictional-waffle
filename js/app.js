@@ -11,95 +11,78 @@ canvas.addEventListener('click', e => {
     console.log(e.offsetX, e.offsetY)
 })
 
-// define player character
-const char = {
-    x: 25,
-    y: 245,
-    width: 50,
-    height: 50,
-    color: 'blue',
-    life: 3,
-    alive: true,
-    render(){
-        ctx.fillStyle = char.color
-        ctx.fillRect(char.x, char.y, char.width, char.height)
-    }
-}
-
-// create enemy class. do i need a bullet class?
-class Enemy {
-    constructor(x, y, width, height, color) {
+// GLOBAL VARIABLES
+let gameState = 0
+class Object {
+    constructor (x, y, width, height, speed, color) {
         this.x = x
         this.y = y
         this.width = width
         this.height = height
+        this.speed = speed
         this.color = color
         this.alive = true
     }
-    render(){
+    
+    render() {
         ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
+        ctx.fillRect(this.x, this.y, this. width, this.height)
     }
 }
 
-let pancake = new Enemy(200, 300, 100, 100, 'red')
+class PlayerChr extends Object {
+    constructor (x, y, width, height, speed, color) {
+        super(x, y, width, height, speed, color)
+        this.life = 3
+    }
+}
+
+const waffle = new PlayerChr(25, 245, 50, 50, 10, 'blue')
+const pancakes = []
+const butter = []
 
 // player movement + shooting handler
 document.addEventListener('keypress', e => {
-    const speed = 10
-    if (char.alive){
+    if (waffle.alive){
         switch (e.key) {
             case('w'):
-                char.y -= speed
-                if (char.y < 0) {
-                    char.y = 0
+                waffle.y -= waffle.speed
+                if (waffle.y < 0) {
+                    waffle.y = 0
                 }
                 break
             case('s'):
-                char.y += speed
-                if (char.y + char.height > canvas.height) {
-                    char.y = canvas.height - char.height
+                waffle.y += waffle.speed
+                if (waffle.y + waffle.height > canvas.height) {
+                    waffle.y = canvas.height - waffle.height
                 }
                 break
             case('a'):
-                char.x -= speed
-                if (char.x < 0) {
-                    char.x = 0
+                waffle.x -= waffle.speed
+                if (waffle.x < 0) {
+                    waffle.x = 0
                 }
                 break
             case('d'):
-                char.x += speed
-                if (char.x + char.width > canvas.width) {
-                    char.x = canvas.width - char.width
+                waffle.x += waffle.speed
+                if (waffle.x + waffle.width > canvas.width) {
+                    waffle.x = canvas.width - waffle.width
                 }
                 break
             case(' '):
-
+                butter.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, 'yellow'))
                 break
             }}
         })
 
 // bullet render and movement
-class Bullet {
-    constructor(x, y, color) {
-        this.x = x
-        this.y = y
-        this.width = 20
-        this.height = 10
-        this.color = color
-
-    }
-    render() {
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
-    }
-}
-
-let butter = new Bullet(100, 100, 'yellow')
 
 // enemy render/placement
+function newPancake() {
+    let randomY = Math.round(Math.random() * 440)
+    pancakes.push(new Object(960, randomY, 100, 100, 10, 'orange'))
+}
 
-// enemy movement?
 
 // collision algo
 function detectHit(objOne, objTwo) {
@@ -108,7 +91,6 @@ function detectHit(objOne, objTwo) {
     const bottom = objOne.y <= objTwo.y + objTwo.height
     const left = objOne.x + objOne.width >= objTwo.x
     if (top && right && bottom && left){
-        console.log('hit')
         return true
     } else {
         return false
@@ -116,13 +98,23 @@ function detectHit(objOne, objTwo) {
 }
 
 // define gameplay loop
-let runGame = setInterval(gameLoop, 60)
+let updateGame = setInterval(gameLoop, 60)
+let spawnEnemy = setInterval(newPancake, 1000)
 
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    char.render()
-    pancake.render()
-    butter.render()
-    detectHit(char, pancake)
-    detectHit(char, butter)
+    waffle.render()
+    for (i = 0; i < butter.length; i++){
+        butter[i].render()
+        butter[i].x += butter[i].speed
+    }
+    for (i = 0; i < pancakes.length; i++){
+        if (pancakes[i].alive) {
+        pancakes[i].render()
+        pancakes[i].x -= pancakes[i].speed
+        if (pancakes[i].x < -50) {
+            pancakes[i].alive = false
+        }
+        }
+    }
 }
