@@ -19,15 +19,12 @@ const char = {
     height: 50,
     color: 'blue',
     life: 3,
-    alive: true
+    alive: true,
+    render(){
+        ctx.fillStyle = char.color
+        ctx.fillRect(char.x, char.y, char.width, char.height)
+    }
 }
-
-function renderChar(){
-    ctx.fillStyle = char.color
-    ctx.fillRect(char.x, char.y, char.width, char.height)
-}
-
-renderChar()
 
 // create enemy class. do i need a bullet class?
 class Enemy {
@@ -39,7 +36,13 @@ class Enemy {
         this.color = color
         this.alive = true
     }
+    render(){
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
 }
+
+let pancake = new Enemy(200, 300, 100, 100, 'red')
 
 // player movement + shooting handler
 document.addEventListener('keypress', e => {
@@ -75,12 +78,51 @@ document.addEventListener('keypress', e => {
                 break
             }}
         })
+
 // bullet render and movement
+class Bullet {
+    constructor(x, y, color) {
+        this.x = x
+        this.y = y
+        this.width = 20
+        this.height = 10
+        this.color = color
+
+    }
+    render() {
+        ctx.fillStyle = this.color
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+}
+
+let butter = new Bullet(100, 100, 'yellow')
 
 // enemy render/placement
 
 // enemy movement?
 
 // collision algo
+function detectHit(objOne, objTwo) {
+    const top = objOne.y + objOne.height >= objTwo.y
+    const right = objOne.x <= objTwo.x + objTwo.width
+    const bottom = objOne.y <= objTwo.y + objTwo.height
+    const left = objOne.x + objOne.width >= objTwo.x
+    if (top && right && bottom && left){
+        console.log('hit')
+        return true
+    } else {
+        return false
+    }
+}
 
 // define gameplay loop
+let runGame = setInterval(gameLoop, 60)
+
+function gameLoop(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    char.render()
+    pancake.render()
+    butter.render()
+    detectHit(char, pancake)
+    detectHit(char, butter)
+}
