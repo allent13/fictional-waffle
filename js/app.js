@@ -11,7 +11,7 @@ canvas.addEventListener('click', e => {
     console.log(e.offsetX, e.offsetY)
 })
 
-// GLOBAL VARIABLES
+// DECLARE AND DEFINE VARIABLES
 let gameState = 0
 class Object {
     constructor (x, y, width, height, speed, color) {
@@ -38,8 +38,8 @@ class PlayerChr extends Object {
 }
 
 const waffle = new PlayerChr(25, 245, 50, 50, 10, 'blue')
-const pancakes = []
 const butter = []
+const pancakes = []
 
 // player movement + shooting handler
 document.addEventListener('keypress', e => {
@@ -76,6 +76,23 @@ document.addEventListener('keypress', e => {
         })
 
 // bullet render and movement
+function shootButter() {
+    for (let i = 0; i < butter.length; i++) {
+        if (butter[i].alive) {
+            butter[i].render()
+            butter[i].x += butter[i].speed
+            for (let j = 0; j < pancakes.length; j++){
+                if (pancakes[j].alive) {
+                    if (detectHit(butter[i], pancakes[j])) {
+                        butter[i].alive = false
+                        pancakes[j].alive = false
+                    }
+                }
+
+            }
+        }
+    }
+}
 
 // enemy render/placement
 function newPancake() {
@@ -103,11 +120,9 @@ let spawnEnemy = setInterval(newPancake, 1000)
 
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    gameState++
     waffle.render()
-    for (i = 0; i < butter.length; i++){
-        butter[i].render()
-        butter[i].x += butter[i].speed
-    }
+    shootButter()
     for (i = 0; i < pancakes.length; i++){
         if (pancakes[i].alive) {
         pancakes[i].render()
