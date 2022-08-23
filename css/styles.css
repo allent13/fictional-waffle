@@ -2,15 +2,15 @@ body {
     margin: 0;
     padding-top: 2rem;
     text-align: center;
-    background-color: tomato;
+    background-color: antiquewhite;
+    font-family: 'Silkscreen', cursive;
 }
 
 #container {
     max-width: fit-content;
     padding: 1em;
     margin: 0 auto;
-    background-color: aliceblue;
-    border: 3px solid black;
+    background-color: tomato;
     border-radius: 13px;
     display: grid;
     gap: 1em;
@@ -22,7 +22,8 @@ body {
 }
 
 canvas {
-    background-color: slategrey;
+    background-color: wheat;
+    border: 3px solid black;
     width: 100%;
     height: 100%;
 }
@@ -32,7 +33,8 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: blueviolet;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
 }
 
 #top-left {

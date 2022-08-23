@@ -1,6 +1,7 @@
 // grab neccessary elements
 const canvas = document.querySelector('#canvas')
-const start = document.querySelector('#top-right')
+const startButton = document.querySelector('#top-right')
+const startText  = document.querySelector('#start')
 const score = document.querySelector('#score')
 const lives = document.querySelector('#lives')
 
@@ -9,10 +10,13 @@ const ctx = canvas.getContext('2d')
 canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
 
-// DECLARE AND DEFINE VARIABLES
+// DECLARE AND DEFINE GLOBAL VARIABLES
 let currentFrame = 0
 let currentScore = 0
 let update = null
+const images = {}
+const imageReady = {}
+
 class Object {
     constructor (x, y, width, height, speed, color) {
         this.x = x
@@ -42,12 +46,32 @@ const waffle = new PlayerChr(50, 245, 50, 50, 25, 'blue')
 const butter = []
 const pancakes = []
 
+// image loading -- make sure images are loaded before drawing
+function loadImage(location, keyName) {
+    imageReady[keyName] = false
+    let img = new Image()
+    img.src = `./assets/${location}`
+    images[keyName] = img
+    img.onload = () => {
+        imageReady[keyName] = true
+    }
+}
+
+loadImage('waffle_dish.png', 'waffleDish')
+console.log(images)
+images.waffleDish.onload = renderImage
+function renderImage() {
+    ctx.drawImage(this, 0 ,0)
+}
+
 // player movement + shooting handler
-document.addEventListener('keydown', e => {
+function playerMovement(e) {
     if (waffle.alive){
         switch (e.key) {
             // UP
             case('ArrowUp'):
+                // prevents scrolling the page
+                e.preventDefault()
                 waffle.y -= waffle.speed
                 if (waffle.y < 0) {
                     waffle.y = 0
@@ -55,6 +79,7 @@ document.addEventListener('keydown', e => {
                 break
             // DOWN
             case('ArrowDown'):
+                e.preventDefault()
                 waffle.y += waffle.speed
                 if (waffle.y + waffle.height > canvas.height) {
                     waffle.y = canvas.height - waffle.height
@@ -62,6 +87,7 @@ document.addEventListener('keydown', e => {
                 break
             // LEFT
             case('ArrowLeft'):
+                e.preventDefault()
                 waffle.x -= waffle.speed
                 if (waffle.x < 0) {
                     waffle.x = 0
@@ -69,6 +95,7 @@ document.addEventListener('keydown', e => {
                 break
             // RIGHT
             case('ArrowRight'):
+                e.preventDefault()
                 waffle.x += waffle.speed
                 if (waffle.x + waffle.width > canvas.width) {
                     waffle.x = canvas.width - waffle.width
@@ -76,11 +103,13 @@ document.addEventListener('keydown', e => {
                 break
             // SHOOT
             case(' '):
+                e.preventDefault()
                 butter.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, 'yellow'))
                 break
+            default: break
         }
     }
-})
+}
 
 // bullet render and hit detection
 function shootButter() {
@@ -157,10 +186,17 @@ function detectHit(objOne, objTwo) {
 }
 
 // define gameplay loop
-start.addEventListener('click', startGame, {once:true})
+startButton.addEventListener('click', startGame, {once:true})
+
 function startGame() {
+    waffle.x = 50
+    waffle.y = 245
+    document.addEventListener('keydown', playerMovement)
     currentScore = 0
+    lives.innerText = "💖💖💖"
     update = setInterval(gameLoop, 60)
+    startText.innerText = "Restart"
+    startButton.addEventListener('click', gameOver, {once:true})
 }
 
 function gameLoop(){
@@ -179,6 +215,7 @@ function gameLoop(){
 
 function gameOver() {
     clearInterval(update)
+    document.removeEventListener('keydown', playerMovement)
     gameState = 0
     while (butter.length > 0) {
         butter.pop()
@@ -186,6 +223,15 @@ function gameOver() {
     while (pancakes.length > 0) {
         pancakes.pop()
     }
-    console.log(butter, pancakes)
-    start.addEventListener('click', startGame, {once:true})
+    startText.innerText = "Try again!"
+    startButton.addEventListener('click', startGame, {once:true})
 }
+
+// DRAW IMAGE TESTING
+// const image = new Image(100, 100)
+// image.src = "./assets/waffle_dish.png"
+// image.onload = drawImage
+
+// function drawImage() {
+//     ctx.drawImage(image, 0, 0, 100, 100)
+// }
