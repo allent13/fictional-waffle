@@ -112,9 +112,14 @@ function shootButter() {
 // enemy creation and placement
 function newPancake() {
     let randomY = Math.round(Math.random() * 440)
-    // creates a new enemy at a random y offscreen
-    if (currentFrame)
-    pancakes.push(new Object(960, randomY, 100, 100, 5, 'orange'))
+    // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
+    if (currentFrame > 1020) {
+        pancakes.push(new Object(960, randomY, 100, 100, 20, 'orange'))
+    } else if (currentFrame > 510) {
+        pancakes.push(new Object(960, randomY, 100, 100, 10, 'orange'))
+    } else {
+        pancakes.push(new Object(960, randomY, 100, 100, 5, 'orange'))
+    }
 }
 
 function spawnPancakes() {
@@ -163,7 +168,7 @@ function gameLoop(){
     if (currentFrame % 100 === 0){
         newPancake()
     }
-    gameState++
+    currentFrame++
     waffle.render()
     spawnPancakes()
     shootButter()
