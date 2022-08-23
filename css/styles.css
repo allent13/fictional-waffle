@@ -41,6 +41,7 @@ canvas {
 
 #top-right {
     grid-area: top-right;
+    cursor: pointer;
 }
 
 main {
