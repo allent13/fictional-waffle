@@ -2,6 +2,7 @@
 const canvas = document.querySelector('#canvas')
 const start = document.querySelector('#top-right')
 const score = document.querySelector('#score')
+const lives = document.querySelector('#lives')
 
 // set canvas dimensions 960 x 540 + get context
 const ctx = canvas.getContext('2d')
@@ -9,7 +10,7 @@ canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
 
 // DECLARE AND DEFINE VARIABLES
-let gameState = 0
+let currentFrame = 0
 let currentScore = 0
 let update = null
 class Object {
@@ -33,6 +34,7 @@ class PlayerChr extends Object {
     constructor (x, y, width, height, speed, color) {
         super(x, y, width, height, speed, color)
         this.life = 3
+        this.livesLeft = ["Game Over!", "💖", "💖💖", "💖💖💖"]
     }
 }
 
@@ -40,7 +42,7 @@ const waffle = new PlayerChr(50, 245, 50, 50, 25, 'blue')
 const butter = []
 const pancakes = []
 
-// player movement + shooting handler -- CHANGE TO ARROW KEYS
+// player movement + shooting handler
 document.addEventListener('keydown', e => {
     if (waffle.alive){
         switch (e.key) {
@@ -76,22 +78,23 @@ document.addEventListener('keydown', e => {
             case(' '):
                 butter.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, 'yellow'))
                 break
-            }}
-        })
+        }
+    }
+})
 
 // bullet render and hit detection
 function shootButter() {
-    // loop through all the butter
+    // loop through all the bullets
     for (let i = 0; i < butter.length; i++) {
-        // if the butter is live, render and move it
+        // if the bullet is live, render and move it
         if (butter[i].alive) {
             butter[i].render()
             butter[i].x += butter[i].speed
-            // kill butter at edge of canvas
+            // kill bullet when it reaches edge of canvas
             if (butter[i].x > 960) {
                 butter[i].alive = false
             }
-            // check for hit between butter and pancake
+            // check for hit between bullet and enemies
             for (let j = 0; j < pancakes.length; j++){
                 if (pancakes[j].alive) {
                     if (detectHit(butter[i], pancakes[j])) {
@@ -106,23 +109,30 @@ function shootButter() {
     }
 }
 
-// enemy render/placement
+// enemy creation and placement
 function newPancake() {
     let randomY = Math.round(Math.random() * 440)
+    // creates a new enemy at a random y offscreen
+    if (currentFrame)
     pancakes.push(new Object(960, randomY, 100, 100, 5, 'orange'))
 }
 
 function spawnPancakes() {
+    // loop through all the enemies
     for (i = 0; i < pancakes.length; i++){
+        // if enemy is alive, render it and move it 
         if (pancakes[i].alive) {
             pancakes[i].render()
             pancakes[i].x -= pancakes[i].speed
-            if (detectHit(pancakes[i], waffle)){
-                waffle.life--
-                pancakes[i].alive = false
-            }
+            // kill enemy when it reaches edge of canvas
             if (pancakes[i].x < -99) {
                 pancakes[i].alive = false
+            }
+            // check for hit between enemy and player
+            if (detectHit(pancakes[i], waffle)){
+                pancakes[i].alive = false
+                waffle.life--
+                lives.innerText = waffle.livesLeft[waffle.life]
             }
         }
     }
@@ -142,16 +152,15 @@ function detectHit(objOne, objTwo) {
 }
 
 // define gameplay loop
+start.addEventListener('click', startGame, {once:true})
 function startGame() {
+    currentScore = 0
     update = setInterval(gameLoop, 60)
 }
-start.addEventListener('click', startGame, {once:true})
-
-
 
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (gameState % 100 === 0){
+    if (currentFrame % 100 === 0){
         newPancake()
     }
     gameState++
@@ -166,7 +175,6 @@ function gameLoop(){
 function gameOver() {
     clearInterval(update)
     gameState = 0
-    currentScore = 0
     while (butter.length > 0) {
         butter.pop()
     }
