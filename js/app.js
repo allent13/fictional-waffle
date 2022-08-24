@@ -19,15 +19,40 @@ const imageReady = {}
 
 loadAllImages()
 
+// image loading -- make sure images are loaded before drawing
+function loadImage(location, keyName) {
+    imageReady[keyName] = false
+    let img = new Image()
+    img.src = `./assets/${location}`
+    images[keyName] = img
+    img.onload = () => {
+        imageReady[keyName] = true
+    }
+}
+
+// asset prep
+function loadAllImages () {
+    loadImage('waffle_dish.png', 'waffleDish')
+    loadImage('dish.png', 'dish')
+    loadImage('pancakes.png', 'pancakes')
+    loadImage('pancakes_dish.png', 'pancakesDish')
+    loadImage('bacon.png', 'bacon')
+    loadImage('bacon_dish.png', 'baconDish')
+    loadImage('omlet.png', 'omlet')
+    loadImage('omlet_dish.png', 'omletDish')
+}
+
 class Object {
-    constructor (x, y, width, height, speed, image) {
+    constructor (x, y, width, height, speed, image, plated) {
         this.x = x
         this.y = y
         this.width = width
         this.height = height
         this.speed = speed
         this.image = image
+        this.plated = plated
         this.alive = true
+        this.hit = false
     }
     
     // FOR DEBUGGING
@@ -42,27 +67,16 @@ class Object {
 }
 
 class PlayerChr extends Object {
-    constructor (x, y, width, height, speed, color) {
-        super(x, y, width, height, speed, color)
+    constructor (x, y, width, height, speed, image) {
+        super(x, y, width, height, speed, image)
         this.life = 3
         this.livesLeft = ["Game Over!", "💖", "💖💖", "💖💖💖"]
     }
 }
 
-const waffle = new PlayerChr(50, 245, 50, 50, 25, images.waffleDish)
+const waffle = new PlayerChr(50, 245, 64, 64, 25, images.waffleDish)
 const bullets = []
 const enemies = []
-
-// image loading -- make sure images are loaded before drawing
-function loadImage(location, keyName) {
-    imageReady[keyName] = false
-    let img = new Image()
-    img.src = `./assets/${location}`
-    images[keyName] = img
-    img.onload = () => {
-        imageReady[keyName] = true
-    }
-}
 
 // player movement + shooting handler
 function playerMovement(e) {
@@ -104,7 +118,7 @@ function playerMovement(e) {
             // SHOOT
             case(' '):
                 e.preventDefault()
-                bullets.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, images.dish))
+                bullets.push(new Object(waffle.x + waffle.width, waffle.y + waffle.height/3, 32, 32, 20, images.dish))
                 break
             default: break
         }
@@ -127,10 +141,16 @@ function shootBullets() {
             for (let j = 0; j < enemies.length; j++){
                 if (enemies[j].alive) {
                     if (detectHit(bullets[i], enemies[j])) {
+                        enemies[j].hit = true
+                        enemies[j].speed = 0
+                        enemies[j].image = enemies[j].plated
                         currentScore += 1000
                         score.innerText = `Score: ${currentScore}`
                         bullets[i].alive = false
                         enemies[j].alive = false
+                        setTimeout(() => {
+                            enemies[j].hit = false
+                        }, 500)
                     }
                 }
             }
@@ -138,16 +158,21 @@ function shootBullets() {
     }
 }
 
+// random number generator
+function randomNum(max) {
+    return Math.floor(Math.random() * max)
+}
+
 // enemy creation and placement
 function newPancake() {
-    let randomY = Math.round(Math.random() * 440)
+    let randomY = randomNum(460)
     // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
     if (currentFrame > 1020) {
-        enemies.push(new Object(960, randomY, 100, 100, 20, images.pancakes))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 15, images.omlet, images.omletDish))
     } else if (currentFrame > 510) {
-        enemies.push(new Object(960, randomY, 100, 100, 10, images.pancakes))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 10, images.bacon, images.baconDish))
     } else {
-        enemies.push(new Object(960, randomY, 100, 100, 5, images.pancakes))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 5, images.pancakes, images.pancakesDish))
     }
 }
 
@@ -155,7 +180,7 @@ function spawnPancakes() {
     // loop through all the enemies
     for (i = 0; i < enemies.length; i++){
         // if enemy is alive, render it and move it 
-        if (enemies[i].alive) {
+        if (enemies[i].alive || enemies[i].hit) {
             enemies[i].render()
             enemies[i].x -= enemies[i].speed
             // kill enemy when it reaches edge of canvas
@@ -183,13 +208,6 @@ function detectHit(objOne, objTwo) {
     } else {
         return false
     }
-}
-
-// asset prep
-function loadAllImages () {
-    loadImage('waffle_dish.png', 'waffleDish')
-    loadImage('pancakes.png', 'pancakes')
-    loadImage('dish.png', 'dish')
 }
 
 // gameplay loop
