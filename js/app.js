@@ -57,13 +57,6 @@ function loadImage(location, keyName) {
     }
 }
 
-loadImage('waffle_dish.png', 'waffleDish')
-console.log(images)
-images.waffleDish.onload = renderImage
-function renderImage() {
-    ctx.drawImage(this, 0 ,0)
-}
-
 // player movement + shooting handler
 function playerMovement(e) {
     if (waffle.alive){
@@ -185,7 +178,14 @@ function detectHit(objOne, objTwo) {
     }
 }
 
-// define gameplay loop
+// asset prep
+function loadAllImages () {
+    loadImage('waffle_dish.png', 'waffleDish')
+    loadImage('pancakes.png', 'pancakes')
+    loadImage('dish.png', 'dish')
+}
+
+// gameplay loop
 startButton.addEventListener('click', startGame, {once:true})
 
 function startGame() {
@@ -226,12 +226,3 @@ function gameOver() {
     startText.innerText = "Try again!"
     startButton.addEventListener('click', startGame, {once:true})
 }
-
-// DRAW IMAGE TESTING
-// const image = new Image(100, 100)
-// image.src = "./assets/waffle_dish.png"
-// image.onload = drawImage
-
-// function drawImage() {
-//     ctx.drawImage(image, 0, 0, 100, 100)
-// }
