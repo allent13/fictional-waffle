@@ -17,20 +17,27 @@ let update = null
 const images = {}
 const imageReady = {}
 
+loadAllImages()
+
 class Object {
-    constructor (x, y, width, height, speed, color) {
+    constructor (x, y, width, height, speed, image) {
         this.x = x
         this.y = y
         this.width = width
         this.height = height
         this.speed = speed
-        this.color = color
+        this.image = image
         this.alive = true
     }
     
+    // FOR DEBUGGING
+    // render() { 
+    //     ctx.fillStyle = this.image
+    //     ctx.fillRect(this.x, this.y, this. width, this.height)
+    // }
+
     render() {
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this. width, this.height)
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
 }
 
@@ -42,9 +49,9 @@ class PlayerChr extends Object {
     }
 }
 
-const waffle = new PlayerChr(50, 245, 50, 50, 25, 'blue')
-const butter = []
-const pancakes = []
+const waffle = new PlayerChr(50, 245, 50, 50, 25, images.waffleDish)
+const bullets = []
+const enemies = []
 
 // image loading -- make sure images are loaded before drawing
 function loadImage(location, keyName) {
@@ -97,7 +104,7 @@ function playerMovement(e) {
             // SHOOT
             case(' '):
                 e.preventDefault()
-                butter.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, 'yellow'))
+                bullets.push(new Object(waffle.x + waffle.width, waffle.y + 25, 20, 10, 20, images.dish))
                 break
             default: break
         }
@@ -105,25 +112,25 @@ function playerMovement(e) {
 }
 
 // bullet render and hit detection
-function shootButter() {
+function shootBullets() {
     // loop through all the bullets
-    for (let i = 0; i < butter.length; i++) {
+    for (let i = 0; i < bullets.length; i++) {
         // if the bullet is live, render and move it
-        if (butter[i].alive) {
-            butter[i].render()
-            butter[i].x += butter[i].speed
+        if (bullets[i].alive) {
+            bullets[i].render()
+            bullets[i].x += bullets[i].speed
             // kill bullet when it reaches edge of canvas
-            if (butter[i].x > 960) {
-                butter[i].alive = false
+            if (bullets[i].x > 960) {
+                bullets[i].alive = false
             }
             // check for hit between bullet and enemies
-            for (let j = 0; j < pancakes.length; j++){
-                if (pancakes[j].alive) {
-                    if (detectHit(butter[i], pancakes[j])) {
+            for (let j = 0; j < enemies.length; j++){
+                if (enemies[j].alive) {
+                    if (detectHit(bullets[i], enemies[j])) {
                         currentScore += 1000
                         score.innerText = `Score: ${currentScore}`
-                        butter[i].alive = false
-                        pancakes[j].alive = false
+                        bullets[i].alive = false
+                        enemies[j].alive = false
                     }
                 }
             }
@@ -136,28 +143,28 @@ function newPancake() {
     let randomY = Math.round(Math.random() * 440)
     // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
     if (currentFrame > 1020) {
-        pancakes.push(new Object(960, randomY, 100, 100, 20, 'orange'))
+        enemies.push(new Object(960, randomY, 100, 100, 20, images.pancakes))
     } else if (currentFrame > 510) {
-        pancakes.push(new Object(960, randomY, 100, 100, 10, 'orange'))
+        enemies.push(new Object(960, randomY, 100, 100, 10, images.pancakes))
     } else {
-        pancakes.push(new Object(960, randomY, 100, 100, 5, 'orange'))
+        enemies.push(new Object(960, randomY, 100, 100, 5, images.pancakes))
     }
 }
 
 function spawnPancakes() {
     // loop through all the enemies
-    for (i = 0; i < pancakes.length; i++){
+    for (i = 0; i < enemies.length; i++){
         // if enemy is alive, render it and move it 
-        if (pancakes[i].alive) {
-            pancakes[i].render()
-            pancakes[i].x -= pancakes[i].speed
+        if (enemies[i].alive) {
+            enemies[i].render()
+            enemies[i].x -= enemies[i].speed
             // kill enemy when it reaches edge of canvas
-            if (pancakes[i].x < -99) {
-                pancakes[i].alive = false
+            if (enemies[i].x < -99) {
+                enemies[i].alive = false
             }
             // check for hit between enemy and player
-            if (detectHit(pancakes[i], waffle)){
-                pancakes[i].alive = false
+            if (detectHit(enemies[i], waffle)){
+                enemies[i].alive = false
                 waffle.life--
                 lives.innerText = waffle.livesLeft[waffle.life]
             }
@@ -188,17 +195,19 @@ function loadAllImages () {
 // gameplay loop
 startButton.addEventListener('click', startGame, {once:true})
 
+// initilize the game
 function startGame() {
     waffle.x = 50
     waffle.y = 245
-    document.addEventListener('keydown', playerMovement)
     currentScore = 0
     lives.innerText = "💖💖💖"
-    update = setInterval(gameLoop, 60)
     startText.innerText = "Restart"
     startButton.addEventListener('click', gameOver, {once:true})
+    update = setInterval(gameLoop, 60)
+    document.addEventListener('keydown', playerMovement)
 }
 
+// what happens every frame
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     if (currentFrame % 100 === 0){
@@ -207,21 +216,22 @@ function gameLoop(){
     currentFrame++
     waffle.render()
     spawnPancakes()
-    shootButter()
+    shootBullets()
     if (waffle.life <= 0) {
         gameOver()
     }
 }
 
+// when its game over
 function gameOver() {
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
     gameState = 0
-    while (butter.length > 0) {
-        butter.pop()
+    while (bullets.length > 0) {
+        bullets.pop()
     }
-    while (pancakes.length > 0) {
-        pancakes.pop()
+    while (enemies.length > 0) {
+        enemies.pop()
     }
     startText.innerText = "Try again!"
     startButton.addEventListener('click', startGame, {once:true})
