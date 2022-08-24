@@ -15,16 +15,17 @@ let currentFrame = 0
 let currentScore = 0
 let update = null
 const images = {}
-const imageReady = {}
+const imageReady = {} // ??? see image loading
+const bullets = []
+const enemies = []
 
-loadAllImages()
-
-// image loading -- make sure images are loaded before drawing
+// image loading -- make sure images are loaded before drawing?
 function loadImage(location, keyName) {
     imageReady[keyName] = false
     let img = new Image()
     img.src = `./assets/${location}`
     images[keyName] = img
+    // unsure if needed but just in case
     img.onload = () => {
         imageReady[keyName] = true
     }
@@ -42,6 +43,9 @@ function loadAllImages () {
     loadImage('omlet_dish.png', 'omletDish')
 }
 
+loadAllImages()
+
+// creating class for player, enemies, and bullets
 class Object {
     constructor (x, y, width, height, speed, image, plated) {
         this.x = x
@@ -70,17 +74,14 @@ class PlayerChr extends Object {
     constructor (x, y, width, height, speed, image) {
         super(x, y, width, height, speed, image)
         this.life = 3
-        this.livesLeft = ["Game Over!", "💖", "💖💖", "💖💖💖"]
+        this.livesLeft = ["Game Over!", "🍓", "🍓🍓", "🍓🍓🍓"]
     }
 }
 
-const waffle = new PlayerChr(50, 245, 64, 64, 25, images.waffleDish)
-const bullets = []
-const enemies = []
+const waffle = new PlayerChr(320, 245, 64, 64, 25, images.waffleDish)
 
 // player movement + shooting handler
 function playerMovement(e) {
-    if (waffle.alive){
         switch (e.key) {
             // UP
             case('ArrowUp'):
@@ -122,7 +123,6 @@ function playerMovement(e) {
                 break
             default: break
         }
-    }
 }
 
 // bullet render and hit detection
@@ -163,20 +163,28 @@ function randomNum(max) {
     return Math.floor(Math.random() * max)
 }
 
-// enemy creation and placement
-function newPancake() {
-    let randomY = randomNum(460)
-    // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
-    if (currentFrame > 1020) {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 15, images.omlet, images.omletDish))
-    } else if (currentFrame > 510) {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 10, images.bacon, images.baconDish))
+function randomFrame(num) {
+    if (num === 1){
+        return 50
     } else {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(5) + 5, images.pancakes, images.pancakesDish))
+        return 100
     }
 }
 
-function spawnPancakes() {
+// enemy creation and placement
+function newEnemy() {
+    let randomY = randomNum(460)
+    // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
+    if (currentFrame > 1020) {
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 15, images.omlet, images.omletDish))
+    } else if (currentFrame > 510) {
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 10, images.bacon, images.baconDish))
+    } else {
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 5, images.pancakes, images.pancakesDish))
+    }
+}
+
+function spawnEnemies() {
     // loop through all the enemies
     for (i = 0; i < enemies.length; i++){
         // if enemy is alive, render it and move it 
@@ -215,10 +223,10 @@ startButton.addEventListener('click', startGame, {once:true})
 
 // initilize the game
 function startGame() {
-    waffle.x = 50
+    waffle.x = 320
     waffle.y = 245
     currentScore = 0
-    lives.innerText = "💖💖💖"
+    lives.innerText = "🍓🍓🍓"
     startText.innerText = "Restart"
     startButton.addEventListener('click', gameOver, {once:true})
     update = setInterval(gameLoop, 60)
@@ -228,12 +236,12 @@ function startGame() {
 // what happens every frame
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (currentFrame % 100 === 0){
-        newPancake()
+    if (currentFrame % randomFrame(randomNum(2)) === 0){
+        newEnemy()
     }
     currentFrame++
     waffle.render()
-    spawnPancakes()
+    spawnEnemies()
     shootBullets()
     if (waffle.life <= 0) {
         gameOver()
@@ -244,7 +252,7 @@ function gameLoop(){
 function gameOver() {
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
-    gameState = 0
+    currentFrame = 0
     while (bullets.length > 0) {
         bullets.pop()
     }
