@@ -1,8 +1,8 @@
-# fictional-waffle (actual name TBD)
+# Fictional Waffle (the actual name now)
 
-fictional-waffle is a 2D side-scrolling shoot em' up game where the player controls a character that fires at oncoming enemies. The player will be able to move up or down and shoot at approaching enemies. If an enemy reaches the player character, they will take damage. If the player takes too much damage, it's game over. You win if there are no more enemies / you reach the end of the stage.
+Fictional Waffle is a 2D top-down shoot em' up game where the player controls a character that fires at oncoming enemies. The player will be able to move up or down and shoot at approaching enemies. If an enemy reaches the player character, they will take damage. If the player takes too much damage, it's game over. You win if there are no more enemies / you reach the end of the stage.
 
-## Wireframe
+## Wireframes
 
 courtesy of Ms paint
 
@@ -40,3 +40,9 @@ courtesy of Ms paint
 - getting multiple enemies to spawn
 - getting them to move towards the player
 - setting up proper hitboxes for enemies, bullets, and the player character
+
+## Art sources
+
+Sprites from
+- https://ghostpixxells.itch.io/pixelfood
+- https://henrysoftware.itch.io/pixel-food

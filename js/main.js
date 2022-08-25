@@ -21,7 +21,7 @@ let currentScore = 0
 let update = null
 let myTimeout = null
 const images = {}
-const imageReady = {} // unsure if needed -- see image loading
+const imageReady = {} // unsure if needed
 const bullets = []
 const enemies = []
 
@@ -97,7 +97,7 @@ function playerMovement(e) {
             // UP
             case('ArrowUp'):
             // case('w'): pressing both doubles the movement -- might try something else
-                e.preventDefault() // prevents scrolling the page with arrow keys
+                e.preventDefault() // prevents scrolling the page with arrow keys and space
                 waffle.y -= waffle.speed
                 if (waffle.y < 0) {
                     waffle.y = 0
@@ -231,6 +231,20 @@ function spawnEnemies() {
     }
 }
 
+
+// when the player gets hit by a normal enemy
+function playerHit () {
+    clearInterval(update)
+    ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
+    waffle.speed = 0
+    waffle.life--
+    lives.innerText = waffle.livesLeft[waffle.life]
+    myTimeout = setTimeout(() => {
+        waffle.speed = 32
+        update = setInterval(gameLoop, 34)
+    }, 500)
+}
+
 // big boss
 const bigWaffle = new Object(960, 0, 540, 540, 1, images.waffle, images.waffleDish)
 bigWaffle.health = 100
@@ -251,19 +265,6 @@ function bigBoi () {
         bigWaffle.render()
         youWin()
     }
-}
-
-// when the player gets hit by a normal enemy
-function playerHit () {
-    clearInterval(update)
-    ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
-    waffle.speed = 0
-    waffle.life--
-    lives.innerText = waffle.livesLeft[waffle.life]
-    myTimeout = setTimeout(() => {
-        waffle.speed = 32
-        update = setInterval(gameLoop, 34)
-    }, 500)
 }
 
 // COLLISION DETECTION ALGO
@@ -289,17 +290,18 @@ function startGame() {
     waffle.life = 3
     lives.innerText = "🍓🍓🍓"
     currentScore = 0
+    currentFrame = 0
     score.innerText = "Score: 0"
     startText.innerText = "Restart"
-    startButton.addEventListener('click', gameOver, {once:true})
     update = setInterval(gameLoop, 34)
     document.addEventListener('keydown', playerMovement)
+    startButton.addEventListener('click', gameOver, {once:true})
 }
 
 // what happens every frame
 function gameLoop(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    if (currentFrame % randomFrame(randomNum(2)) === 0){
+    if (currentFrame % randomFrame(randomNum(2)) === 0) {
         newEnemy()
     }
     currentFrame++
@@ -328,7 +330,7 @@ function gameOver() {
     clearTimeout(myTimeout)
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
-    currentFrame = 0
+    // clears out both arrays
     while (bullets.length > 0) {
         bullets.pop()
     }
@@ -344,16 +346,15 @@ function gameOver() {
 function youWin() {
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
-    currentFrame = 0
     while (bullets.length > 0) {
         bullets.pop()
     }
     while (enemies.length > 0) {
         enemies.pop()
     }
-    startText.innerText = "Again?"
-    lives.innerText = "You won"
+    lives.innerText = "You won."
     score.innerText = "Congrats Breakfast Boss"
+    startText.innerText = "Again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
 }
