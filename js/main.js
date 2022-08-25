@@ -10,6 +10,10 @@ const ctx = canvas.getContext('2d')
 canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
 ctx.imageSmoothingEnabled = false
+ctx.shadowColor = "rgba(0, 0, 0, .7)"
+ctx.shadowBlur = 3
+ctx.shadowOffsetX = 7
+ctx.shadowOffsetY = 7
 
 // DECLARE AND DEFINE GLOBAL VARIABLES
 let currentFrame = 0
@@ -180,11 +184,11 @@ function newEnemy() {
     let randomY = randomNum(460)
     // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
     if (currentFrame > 1020) {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 15, images.omlet, images.omletDish))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 18, images.omlet, images.omletDish))
     } else if (currentFrame > 510) {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 10, images.bacon, images.baconDish))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 12, images.bacon, images.baconDish))
     } else {
-        enemies.push(new Object(960, randomY, 96, 96, randomNum(10) + 5, images.pancakes, images.pancakesDish))
+        enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 6, images.pancakes, images.pancakesDish))
     }
 }
 
