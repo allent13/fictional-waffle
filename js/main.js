@@ -5,7 +5,7 @@ const startText  = document.querySelector('#start')
 const score = document.querySelector('#score')
 const lives = document.querySelector('#lives')
 
-// set canvas dimensions 960 x 540 + get context
+// set canvas dimensions 960 x 540 + extra context stuff
 const ctx = canvas.getContext('2d')
 canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
@@ -19,12 +19,13 @@ ctx.shadowOffsetY = 7
 let currentFrame = 0
 let currentScore = 0
 let update = null
+let myTimeout = null
 const images = {}
-const imageReady = {} // ??? see image loading
+const imageReady = {} // unsure if needed -- see image loading
 const bullets = []
 const enemies = []
 
-// image loading -- make sure images are loaded before drawing?
+// IMAGE LOADING -- make sure images are loaded before drawing
 function loadImage(location, keyName) {
     imageReady[keyName] = false
     let img = new Image()
@@ -39,6 +40,7 @@ function loadImage(location, keyName) {
 // asset prep
 function loadAllImages () {
     loadImage('waffle_dish.png', 'waffleDish')
+    loadImage('flying_strawberry.png', 'waffleHit')
     loadImage('dish.png', 'dish')
     loadImage('pancakes.png', 'pancakes')
     loadImage('pancakes_dish.png', 'pancakesDish')
@@ -52,14 +54,14 @@ loadAllImages()
 
 // creating class for player, enemies, and bullets
 class Object {
-    constructor (x, y, width, height, speed, image, plated) {
+    constructor (x, y, width, height, speed, image, hitImage) {
         this.x = x
         this.y = y
         this.width = width
         this.height = height
         this.speed = speed
         this.image = image
-        this.plated = plated
+        this.hitImage = hitImage
         this.alive = true
         this.hit = false
     }
@@ -76,8 +78,8 @@ class Object {
 }
 
 class PlayerChr extends Object {
-    constructor (x, y, width, height, speed, image) {
-        super(x, y, width, height, speed, image)
+    constructor (x, y, width, height, speed, image, hitImage) {
+        super(x, y, width, height, speed, image, hitImage)
         this.life = 3
         this.livesLeft = ["Game Over!", "🍓", "🍓🍓", "🍓🍓🍓"]
     }
@@ -151,7 +153,7 @@ function shootBullets() {
                     if (detectHit(bullets[i], enemies[j])) {
                         enemies[j].hit = true
                         enemies[j].speed = 0
-                        enemies[j].image = enemies[j].plated
+                        enemies[j].image = enemies[j].hitImage
                         currentScore += 1000
                         score.innerText = `Score: ${currentScore}`
                         bullets[i].alive = false
@@ -181,7 +183,7 @@ function randomFrame(num) {
 
 // enemy creation and placement
 function newEnemy() {
-    let randomY = randomNum(460)
+    let randomY = randomNum(461)
     // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
     if (currentFrame > 1020) {
         enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 18, images.omlet, images.omletDish))
@@ -200,26 +202,37 @@ function spawnEnemies() {
             enemies[i].render()
             enemies[i].x -= enemies[i].speed
             // kill enemy when it reaches edge of canvas
-            if (enemies[i].x < -99) {
+            if (enemies[i].x < -100) {
                 enemies[i].alive = false
             }
             // check for hit between enemy and player
             if (detectHit(enemies[i], waffle)){
                 enemies[i].alive = false
-                waffle.life--
-                lives.innerText = waffle.livesLeft[waffle.life]
+                playerHit()
             }
         }
     }
 }
 
+function playerHit () {
+    clearInterval(update)
+    ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
+    waffle.speed = 0
+    waffle.life--
+    lives.innerText = waffle.livesLeft[waffle.life]
+    myTimeout = setTimeout(() => {
+        waffle.speed = 32
+        update = setInterval(gameLoop, 34)
+    }, 500)
+}
+
 // COLLISION DETECTION ALGO
 function detectHit(objOne, objTwo) {
-    const top = objOne.y + objOne.height - 6 >= objTwo.y + 6
-    const right = objOne.x + 6 <= objTwo.x + objTwo.width - 6
-    const bottom = objOne.y + 6 <= objTwo.y + objTwo.height - 6
-    const left = objOne.x + objOne.width - 6 >= objTwo.x + 6
-    if (top && right && bottom && left){
+    const top = objOne.y + objOne.height - 10 >= objTwo.y + 10
+    const right = objOne.x + 10 <= objTwo.x + objTwo.width - 10
+    const bottom = objOne.y + 10 <= objTwo.y + objTwo.height - 10
+    const left = objOne.x + objOne.width - 10 >= objTwo.x + 10
+    if (top && right && bottom && left) {
         return true
     } else {
         return false
@@ -234,8 +247,9 @@ function startGame() {
     waffle.x = 320
     waffle.y = 245
     waffle.life = 3
-    currentScore = 0
     lives.innerText = "🍓🍓🍓"
+    currentScore = 0
+    score.innerText = "Score: 0"
     startText.innerText = "Restart"
     startButton.addEventListener('click', gameOver, {once:true})
     update = setInterval(gameLoop, 34)
@@ -259,6 +273,7 @@ function gameLoop(){
 
 // when its game over
 function gameOver() {
+    clearTimeout(myTimeout)
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
     currentFrame = 0
