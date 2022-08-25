@@ -6,7 +6,7 @@ fictional-waffle is a 2D side-scrolling shoot em' up game where the player contr
 
 courtesy of Ms paint
 
-![wireframe](./assets/P1%20wireframe.png)
+![wireframe](./media/P1%20wireframe.png)
 
 ## MVP Goals
 

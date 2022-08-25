@@ -9,6 +9,7 @@ const lives = document.querySelector('#lives')
 const ctx = canvas.getContext('2d')
 canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
+ctx.imageSmoothingEnabled = false
 
 // DECLARE AND DEFINE GLOBAL VARIABLES
 let currentFrame = 0
@@ -23,7 +24,7 @@ const enemies = []
 function loadImage(location, keyName) {
     imageReady[keyName] = false
     let img = new Image()
-    img.src = `./assets/${location}`
+    img.src = `./media/${location}`
     images[keyName] = img
     // unsure if needed but just in case
     img.onload = () => {
@@ -78,14 +79,15 @@ class PlayerChr extends Object {
     }
 }
 
-const waffle = new PlayerChr(320, 245, 64, 64, 25, images.waffleDish)
+const waffle = new PlayerChr(320, 245, 64, 64, 32, images.waffleDish)
 
 // player movement + shooting handler
 function playerMovement(e) {
         switch (e.key) {
             // UP
             case('ArrowUp'):
-                // prevents scrolling the page
+            case('w'):
+                // prevents scrolling the page with arrow keys
                 e.preventDefault()
                 waffle.y -= waffle.speed
                 if (waffle.y < 0) {
@@ -94,6 +96,7 @@ function playerMovement(e) {
                 break
             // DOWN
             case('ArrowDown'):
+            case('s'):
                 e.preventDefault()
                 waffle.y += waffle.speed
                 if (waffle.y + waffle.height > canvas.height) {
@@ -102,6 +105,7 @@ function playerMovement(e) {
                 break
             // LEFT
             case('ArrowLeft'):
+            case('a'):
                 e.preventDefault()
                 waffle.x -= waffle.speed
                 if (waffle.x < 0) {
@@ -110,6 +114,7 @@ function playerMovement(e) {
                 break
             // RIGHT
             case('ArrowRight'):
+            case('d'):
                 e.preventDefault()
                 waffle.x += waffle.speed
                 if (waffle.x + waffle.width > canvas.width) {
@@ -119,7 +124,7 @@ function playerMovement(e) {
             // SHOOT
             case(' '):
                 e.preventDefault()
-                bullets.push(new Object(waffle.x + waffle.width, waffle.y + waffle.height/3, 32, 32, 20, images.dish))
+                bullets.push(new Object(waffle.x + waffle.width, waffle.y + waffle.height/3, 32, 32, 16, images.dish))
                 break
             default: break
         }
@@ -207,10 +212,10 @@ function spawnEnemies() {
 
 // COLLISION DETECTION ALGO
 function detectHit(objOne, objTwo) {
-    const top = objOne.y + objOne.height >= objTwo.y
-    const right = objOne.x <= objTwo.x + objTwo.width
-    const bottom = objOne.y <= objTwo.y + objTwo.height
-    const left = objOne.x + objOne.width >= objTwo.x
+    const top = objOne.y + objOne.height - 6 >= objTwo.y + 6
+    const right = objOne.x + 6 <= objTwo.x + objTwo.width - 6
+    const bottom = objOne.y + 6 <= objTwo.y + objTwo.height - 6
+    const left = objOne.x + objOne.width - 6 >= objTwo.x + 6
     if (top && right && bottom && left){
         return true
     } else {
@@ -225,11 +230,12 @@ startButton.addEventListener('click', startGame, {once:true})
 function startGame() {
     waffle.x = 320
     waffle.y = 245
+    waffle.life = 3
     currentScore = 0
     lives.innerText = "🍓🍓🍓"
     startText.innerText = "Restart"
     startButton.addEventListener('click', gameOver, {once:true})
-    update = setInterval(gameLoop, 60)
+    update = setInterval(gameLoop, 34)
     document.addEventListener('keydown', playerMovement)
 }
 
