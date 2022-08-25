@@ -51,7 +51,6 @@ main {
     width: 960px;
     height: 540px;
     grid-area: game;
-    background-color: rebeccapurple;
 }
 
 #bottom-left {
