@@ -48,6 +48,9 @@ function loadAllImages () {
     loadImage('bacon_dish.png', 'baconDish')
     loadImage('omlet.png', 'omlet')
     loadImage('omlet_dish.png', 'omletDish')
+    loadImage('roastedchicken.png', 'roastedChicken')
+    loadImage('roastedchicken_dish.png', 'roastedChickenDish')
+    loadImage('waffle.png', 'waffle')
 }
 
 loadAllImages()
@@ -78,13 +81,14 @@ class Object {
 }
 
 class PlayerChr extends Object {
-    constructor (x, y, width, height, speed, image, hitImage) {
-        super(x, y, width, height, speed, image, hitImage)
+    constructor (x, y, width, height, speed, image) {
+        super(x, y, width, height, speed, image)
         this.life = 3
         this.livesLeft = ["Game Over!", "🍓", "🍓🍓", "🍓🍓🍓"]
     }
 }
 
+// creates player character
 const waffle = new PlayerChr(320, 245, 64, 64, 32, images.waffleDish)
 
 // player movement + shooting handler
@@ -173,6 +177,7 @@ function randomNum(max) {
     return Math.floor(Math.random() * max)
 }
 
+// for spawning enemeis at random times
 function randomFrame(num) {
     if (num === 1){
         return 50
@@ -183,13 +188,25 @@ function randomFrame(num) {
 
 // enemy creation and placement
 function newEnemy() {
+    // will create enemies at random Y location off screen
     let randomY = randomNum(461)
-    // creates enemy at random y offscreen, creates faster enemeies after 30~ and 60~ seconds
-    if (currentFrame > 1020) {
+    let randomYHalf = randomNum(231)
+    if (currentFrame > 3600) {
+        // 120~ seconds its boss time
+        clearInterval(update)
+        update = setInterval(bossTime, 34)
+    } else if (currentFrame > 2700) {
+        // 90~ seconds spawns more enemies at a time
+        enemies.push(new Object(960, randomYHalf, 96, 96, randomNum(7) + 18, images.roastedChicken, images.roastedChickenDish))
+        enemies.push(new Object(960, randomYHalf + 230, 96, 96, randomNum(7) + 18, images.roastedChicken, images.roastedChickenDish))
+    } else if (currentFrame > 1800) {
+        // 60~ seconds spawns even faster enemies
         enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 18, images.omlet, images.omletDish))
-    } else if (currentFrame > 510) {
+    } else if (currentFrame > 900) {
+        // 30~ seconds spawns faster enemies
         enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 12, images.bacon, images.baconDish))
     } else {
+        // game starts here
         enemies.push(new Object(960, randomY, 96, 96, randomNum(7) + 6, images.pancakes, images.pancakesDish))
     }
 }
@@ -214,6 +231,29 @@ function spawnEnemies() {
     }
 }
 
+// big boss
+const bigWaffle = new Object(960, 0, 540, 540, 1, images.waffle, images.waffleDish)
+bigWaffle.health = 100
+
+function bigBoi () {
+    bigWaffle.render()
+    bigWaffle.x -= bigWaffle.speed
+    for (let i = 0; i < bullets.length; i ++) {
+        if (bullets[i].alive === true) {
+            if (detectHit(bullets[i], bigWaffle)) {
+                bullets[i].alive = false
+                bigWaffle.health--
+            }
+        }
+    }
+    if (bigWaffle.health <= 0) {
+        bigWaffle.image = bigWaffle.hitImage
+        bigWaffle.render()
+        youWin()
+    }
+}
+
+// when the player gets hit by a normal enemy
 function playerHit () {
     clearInterval(update)
     ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
@@ -239,10 +279,10 @@ function detectHit(objOne, objTwo) {
     }
 }
 
-// gameplay loop
+// add the start button
 startButton.addEventListener('click', startGame, {once:true})
 
-// initilize the game
+// initilize and start the game
 function startGame() {
     waffle.x = 320
     waffle.y = 245
@@ -271,6 +311,18 @@ function gameLoop(){
     }
 }
 
+// what happens every frame at boss time
+function bossTime () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    waffle.render()
+    shootBullets()
+    spawnEnemies()
+    bigBoi()
+    if (detectHit(waffle, bigWaffle)) {
+        gameOver()
+    }
+}
+
 // when its game over
 function gameOver() {
     clearTimeout(myTimeout)
@@ -284,5 +336,24 @@ function gameOver() {
         enemies.pop()
     }
     startText.innerText = "Try again!"
+    startButton.removeEventListener('click', gameOver)
+    startButton.addEventListener('click', startGame, {once:true})
+}
+
+// when you kill the boss
+function youWin() {
+    clearInterval(update)
+    document.removeEventListener('keydown', playerMovement)
+    currentFrame = 0
+    while (bullets.length > 0) {
+        bullets.pop()
+    }
+    while (enemies.length > 0) {
+        enemies.pop()
+    }
+    startText.innerText = "Again?"
+    lives.innerText = "You won"
+    score.innerText = "Congrats Breakfast Boss"
+    startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
 }
