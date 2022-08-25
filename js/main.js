@@ -86,9 +86,8 @@ function playerMovement(e) {
         switch (e.key) {
             // UP
             case('ArrowUp'):
-            case('w'):
-                // prevents scrolling the page with arrow keys
-                e.preventDefault()
+            // case('w'): pressing both doubles the movement -- might try something else
+                e.preventDefault() // prevents scrolling the page with arrow keys
                 waffle.y -= waffle.speed
                 if (waffle.y < 0) {
                     waffle.y = 0
@@ -96,7 +95,7 @@ function playerMovement(e) {
                 break
             // DOWN
             case('ArrowDown'):
-            case('s'):
+            // case('s'):
                 e.preventDefault()
                 waffle.y += waffle.speed
                 if (waffle.y + waffle.height > canvas.height) {
@@ -105,7 +104,7 @@ function playerMovement(e) {
                 break
             // LEFT
             case('ArrowLeft'):
-            case('a'):
+            // case('a'):
                 e.preventDefault()
                 waffle.x -= waffle.speed
                 if (waffle.x < 0) {
@@ -114,7 +113,7 @@ function playerMovement(e) {
                 break
             // RIGHT
             case('ArrowRight'):
-            case('d'):
+            // case('d'):
                 e.preventDefault()
                 waffle.x += waffle.speed
                 if (waffle.x + waffle.width > canvas.width) {
