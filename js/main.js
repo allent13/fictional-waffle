@@ -352,8 +352,8 @@ function youWin() {
     while (enemies.length > 0) {
         enemies.pop()
     }
-    lives.innerText = "You won."
-    score.innerText = "Congrats Breakfast Boss"
+    lives.innerText = "You win"
+    score.innerText = `Grats Breakfast Boss. Score: ${currentScore}`
     startText.innerText = "Again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
