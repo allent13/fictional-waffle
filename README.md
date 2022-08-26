@@ -8,15 +8,16 @@ https://average-alien.github.io/fictional-waffle/
 
 ## Sources
 
-Sprites from
-- https://ghostpixxells.itch.io/pixelfood
-- https://henrysoftware.itch.io/pixel-food
+Sprites from:  
+https://ghostpixxells.itch.io/pixelfood  
+https://henrysoftware.itch.io/pixel-food
 
 ## Tech used
 
 - Canvas game
 - HTML5/CSS for basic page layout and setting up a canvas
 - Javascript for drawing to the canvas and overall game functionality
+- Some DOM manipulation for the start/restart buttons and displaying game info
 
 ## Approach taken
 
@@ -50,7 +51,7 @@ Overall I think this project was both challenging and a great learning experienc
 
 - mulitple stages
 - power ups for the player
-- incorporate cool assets ✅
+- incorporate ~~cool~~ cute assets ✅
 - if possible, add some animiations ✅ but they're pretty simple
 - different enemy types ✅
 - different player characters with different bullet properties
