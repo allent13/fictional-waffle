@@ -19,7 +19,8 @@ ctx.shadowOffsetY = 7
 let currentFrame = 0
 let currentScore = 0
 let update = null
-let myTimeout = null
+let playerTimeout = null
+let enemyTimeout = null
 const images = {}
 const imageReady = {} // unsure if needed
 const bullets = []
@@ -95,36 +96,32 @@ const waffle = new PlayerChr(320, 245, 64, 64, 32, images.waffleDish)
 function playerMovement(e) {
         switch (e.key) {
             // UP
-            case('ArrowUp'):
-            // case('w'): pressing both doubles the movement -- might try something else
-                e.preventDefault() // prevents scrolling the page with arrow keys and space
+            // case('ArrowUp'):
+            case('w'): // pressing both doubles the movement -- might try something else
                 waffle.y -= waffle.speed
                 if (waffle.y < 0) {
                     waffle.y = 0
                 }
                 break
             // DOWN
-            case('ArrowDown'):
-            // case('s'):
-                e.preventDefault()
+            // case('ArrowDown'):
+            case('s'):
                 waffle.y += waffle.speed
                 if (waffle.y + waffle.height > canvas.height) {
                     waffle.y = canvas.height - waffle.height
                 }
                 break
             // LEFT
-            case('ArrowLeft'):
-            // case('a'):
-                e.preventDefault()
+            // case('ArrowLeft'):
+            case('a'):
                 waffle.x -= waffle.speed
                 if (waffle.x < 0) {
                     waffle.x = 0
                 }
                 break
             // RIGHT
-            case('ArrowRight'):
-            // case('d'):
-                e.preventDefault()
+            // case('ArrowRight'):
+            case('d'):
                 waffle.x += waffle.speed
                 if (waffle.x + waffle.width > canvas.width) {
                     waffle.x = canvas.width - waffle.width
@@ -132,12 +129,19 @@ function playerMovement(e) {
                 break
             // SHOOT
             case(' '):
-                e.preventDefault()
+                e.preventDefault() // prevents scrolling the page with arrow keys and space
                 bullets.push(new Object(waffle.x + waffle.width, waffle.y + waffle.height/3, 32, 32, 16, images.dish))
                 break
             default: break
         }
 }
+
+// no more page scrolling
+window.addEventListener('keydown', e => {
+    if (e.key === ' ') {
+        e.preventDefault()
+    }
+})
 
 // bullet render and hit detection
 function shootBullets() {
@@ -162,7 +166,7 @@ function shootBullets() {
                         score.innerText = `Score: ${currentScore}`
                         bullets[i].alive = false
                         enemies[j].alive = false
-                        setTimeout(() => {
+                        enemyTimeout = setTimeout(() => {
                             enemies[j].hit = false
                         }, 500)
                     }
@@ -226,6 +230,9 @@ function spawnEnemies() {
             if (detectHit(enemies[i], waffle)){
                 enemies[i].alive = false
                 playerHit()
+                if (waffle.life <= 0) {
+                    gameOver()
+                }
             }
         }
     }
@@ -235,11 +242,11 @@ function spawnEnemies() {
 // when the player gets hit by a normal enemy
 function playerHit () {
     clearInterval(update)
-    ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
     waffle.speed = 0
+    ctx.drawImage(images.waffleHit, waffle.x - 12, waffle.y - 6)
     waffle.life--
     lives.innerText = waffle.livesLeft[waffle.life]
-    myTimeout = setTimeout(() => {
+    playerTimeout = setTimeout(() => {
         waffle.speed = 32
         update = setInterval(gameLoop, 34)
     }, 500)
@@ -283,18 +290,19 @@ function detectHit(objOne, objTwo) {
 // add the start button
 startButton.addEventListener('click', startGame, {once:true})
 
-// initilize and start the game
+// initilize and start the game -- might be a better way to init
 function startGame() {
+    document.addEventListener('keydown', playerMovement)
     waffle.x = 320
     waffle.y = 245
     waffle.life = 3
+    waffle.speed = 32
     lives.innerText = "🍓🍓🍓"
     currentScore = 0
     currentFrame = 0
     score.innerText = "Score: 0"
     startText.innerText = "Restart"
     update = setInterval(gameLoop, 34)
-    document.addEventListener('keydown', playerMovement)
     startButton.addEventListener('click', gameOver, {once:true})
 }
 
@@ -308,9 +316,6 @@ function gameLoop(){
     waffle.render()
     spawnEnemies()
     shootBullets()
-    if (waffle.life <= 0) {
-        gameOver()
-    }
 }
 
 // what happens every frame at boss time
@@ -327,7 +332,8 @@ function bossTime () {
 
 // when its game over
 function gameOver() {
-    clearTimeout(myTimeout)
+    clearTimeout(playerTimeout)
+    clearTimeout(enemyTimeout)
     clearInterval(update)
     document.removeEventListener('keydown', playerMovement)
     // clears out both arrays
