@@ -10,7 +10,10 @@ https://average-alien.github.io/fictional-waffle/
 
 Sprites from:  
 https://ghostpixxells.itch.io/pixelfood  
-https://henrysoftware.itch.io/pixel-food
+https://henrysoftware.itch.io/pixel-food'
+
+Font from:  
+https://fonts.google.com/specimen/Silkscreen
 
 ## Tech used
 
