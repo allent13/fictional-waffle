@@ -9,7 +9,9 @@ const lives = document.querySelector('#lives')
 const ctx = canvas.getContext('2d')
 canvas.setAttribute('height', getComputedStyle(canvas)['height'])
 canvas.setAttribute('width', getComputedStyle(canvas)['width'])
+// for sharp pixel art
 ctx.imageSmoothingEnabled = false
+// shadows under images for visibility
 ctx.shadowColor = "rgba(0, 0, 0, .7)"
 ctx.shadowBlur = 3
 ctx.shadowOffsetX = 7
@@ -72,7 +74,7 @@ class Object {
     
     // FOR DEBUGGING
     // render() { 
-    //     ctx.fillStyle = this.image
+    //     ctx.fillStyle = this.image // color
     //     ctx.fillRect(this.x, this.y, this. width, this.height)
     // }
 
@@ -136,7 +138,7 @@ function playerMovement(e) {
         }
 }
 
-// no more page scrolling
+// no more page scrolling with space bar
 window.addEventListener('keydown', e => {
     if (e.key === ' ') {
         e.preventDefault()
@@ -256,9 +258,11 @@ function playerHit () {
 const bigWaffle = new Object(960, 0, 540, 540, 1, images.waffle, images.waffleDish)
 bigWaffle.health = 100
 
+// render the boss and move it
 function bigBoi () {
     bigWaffle.render()
     bigWaffle.x -= bigWaffle.speed
+    // check for hit between bullets and boss
     for (let i = 0; i < bullets.length; i ++) {
         if (bullets[i].alive === true) {
             if (detectHit(bullets[i], bigWaffle)) {
@@ -290,7 +294,7 @@ function detectHit(objOne, objTwo) {
 // add the start button
 startButton.addEventListener('click', startGame, {once:true})
 
-// initilize and start the game -- might be a better way to init
+// initilize and start the game
 function startGame() {
     document.addEventListener('keydown', playerMovement)
     waffle.x = 320
@@ -307,7 +311,7 @@ function startGame() {
 }
 
 // what happens every frame
-function gameLoop(){
+function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     if (currentFrame % randomFrame(randomNum(2)) === 0) {
         newEnemy()
@@ -343,7 +347,7 @@ function gameOver() {
     while (enemies.length > 0) {
         enemies.pop()
     }
-    startText.innerText = "Try again!"
+    startText.innerText = "Try again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
 }
