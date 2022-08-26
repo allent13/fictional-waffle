@@ -158,7 +158,7 @@ function shootBullets() {
                         enemies[j].hit = true
                         enemies[j].speed = 0
                         enemies[j].image = enemies[j].hitImage
-                        currentScore += 1000
+                        currentScore += 100
                         score.innerText = `Score: ${currentScore}`
                         bullets[i].alive = false
                         enemies[j].alive = false
@@ -353,7 +353,7 @@ function youWin() {
         enemies.pop()
     }
     lives.innerText = "You win"
-    score.innerText = `Grats Breakfast Boss. Score: ${currentScore}`
+    score.innerText = `Congrats Breakfast Boss. Score: ${currentScore}`
     startText.innerText = "Again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
