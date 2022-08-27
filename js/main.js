@@ -1,9 +1,12 @@
 // grab neccessary elements
 const canvas = document.querySelector('#canvas')
-const startButton = document.querySelector('#top-right')
+const startButton = document.querySelector('#start-stop')
 const startText  = document.querySelector('#start')
 const score = document.querySelector('#score')
 const lives = document.querySelector('#lives')
+const modal = document.querySelector('#htp-modal')
+const modalX = document.querySelector('.modal-close')
+const htpButton = document.querySelector('#htp')
 
 // set canvas dimensions 960 x 540 + extra context stuff
 const ctx = canvas.getContext('2d')
@@ -16,6 +19,18 @@ ctx.shadowColor = "rgba(0, 0, 0, .7)"
 ctx.shadowBlur = 3
 ctx.shadowOffsetX = 7
 ctx.shadowOffsetY = 7
+
+// HTP Modal
+function showHide(){
+    if (modal.classList.contains("hidden")){
+        modal.classList.remove("hidden")
+    } else {
+        modal.classList.add("hidden")
+    }
+}
+
+htpButton.addEventListener('click', showHide)
+modalX.addEventListener('click', showHide)
 
 // DECLARE AND DEFINE GLOBAL VARIABLES
 let currentFrame = 0
@@ -296,6 +311,8 @@ startButton.addEventListener('click', startGame, {once:true})
 
 // initilize and start the game
 function startGame() {
+    htpButton.removeEventListener('click', showHide)
+    modal.classList.add('hidden')
     document.addEventListener('keydown', playerMovement)
     waffle.x = 320
     waffle.y = 245
@@ -350,6 +367,7 @@ function gameOver() {
     startText.innerText = "Try again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
+    htpButton.addEventListener('click', showHide)
 }
 
 // when you kill the boss
@@ -367,4 +385,5 @@ function youWin() {
     startText.innerText = "Again?"
     startButton.removeEventListener('click', gameOver)
     startButton.addEventListener('click', startGame, {once:true})
+    htpButton.addEventListener('click', showHide)
 }

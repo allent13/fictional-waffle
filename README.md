@@ -6,21 +6,24 @@ Fictional Waffle is a 2D top-down shoot em' up game where the player controls a 
 
 https://average-alien.github.io/fictional-waffle/
 
-## Sources
-
-Sprites from:  
-https://ghostpixxells.itch.io/pixelfood  
-https://henrysoftware.itch.io/pixel-food'
-
-Font from:  
-https://fonts.google.com/specimen/Silkscreen
-
 ## Tech used
 
 - Canvas game
 - HTML5/CSS for basic page layout and setting up a canvas
 - Javascript for drawing to the canvas and overall game functionality
 - Some DOM manipulation for the start/restart buttons and displaying game info
+
+## Sources
+
+Sprites from:  
+https://ghostpixxells.itch.io/pixelfood  
+https://henrysoftware.itch.io/pixel-food
+
+Font from:  
+https://fonts.google.com/specimen/Silkscreen
+
+Modal guide:  
+https://www.w3schools.com/howto/howto_css_modals.asp
 
 ## Approach taken
 
